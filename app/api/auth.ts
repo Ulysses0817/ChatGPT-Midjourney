@@ -47,7 +47,7 @@ export function auth(req: NextRequest) {
     };
   }
   
-//   req.headers.set("access-code", `${accessCode}`);
+  req.headers.set("access-code", `${accessCode}`);
   
   // if user does not provide an api key, inject system api key
   if (!token) {
