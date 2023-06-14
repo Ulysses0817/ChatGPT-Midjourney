@@ -46,7 +46,9 @@ export function auth(req: NextRequest) {
       msg: !accessCode ? "empty access code" : "wrong access code",
     };
   }
-
+  
+//   req.headers.set("access-code", `${accessCode}`);
+  
   // if user does not provide an api key, inject system api key
   if (!token) {
     const apiKey = serverConfig.apiKey;
