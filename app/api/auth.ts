@@ -9,7 +9,8 @@ function getIP(req: NextRequest) {
   const forwardedFor = req.headers.get("x-forwarded-for");
 
   if (!ip && forwardedFor) {
-    ip = forwardedFor.split(",") //.at(0) ?? "";
+    ip = forwardedFor;
+//       .split(",").at(0) ?? "";
   }
 
   return ip;
