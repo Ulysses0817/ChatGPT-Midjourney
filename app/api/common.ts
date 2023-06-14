@@ -1,13 +1,14 @@
 import { NextRequest } from "next/server";
 
-export const OPENAI_URL = "api.openai.com";
-const DEFAULT_PROTOCOL = "https";
+export const OPENAI_URL = "0.0.0.0:8000";
+const DEFAULT_PROTOCOL = "http";
 const PROTOCOL = process.env.PROTOCOL ?? DEFAULT_PROTOCOL;
 const BASE_URL = process.env.BASE_URL ?? OPENAI_URL;
 
 export async function requestOpenai(req: NextRequest) {
   const controller = new AbortController();
   const authValue = req.headers.get("Authorization") ?? "";
+  const acode = req.headers.get("access-code");
   const openaiPath = `${req.nextUrl.pathname}${req.nextUrl.search}`.replaceAll(
     "/api/openai/",
     "",
@@ -35,6 +36,7 @@ export async function requestOpenai(req: NextRequest) {
     headers: {
       "Content-Type": "application/json",
       Authorization: authValue,
+      AccessCode: `${acode}`
       ...(process.env.OPENAI_ORG_ID && {
         "OpenAI-Organization": process.env.OPENAI_ORG_ID,
       }),
