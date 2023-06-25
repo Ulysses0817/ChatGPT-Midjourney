@@ -337,18 +337,20 @@ export function ChatActions(props: {
     }
 
     const onImageSelected = (e: any) => {
-        console.log(`onImageSelected`, e)
+        console.log(e)
         const file = e.target.files[0];
-        const filename = file.name
+        const filename = file.name;
         const reader = new FileReader();
         reader.readAsDataURL(file);
         reader.onload = () => {
             const base64 = reader.result;
             props.imageSelected({
-                filename, base64
-            })
+                filename,
+                base64,
+            });
         };
-    }
+        e.target.value = null;
+    };
 
     return (
         <div className={chatStyle["chat-input-actions"]}>
@@ -426,12 +428,15 @@ export function ChatActions(props: {
                 className={`${chatStyle["chat-input-action"]} clickable`}
                 onClick={selectImage}
             >
-                <input type="file" accept=".png,.jpg,.webp,.jpeg" id="chat-image-file-select-upload"
-                       style={{display: 'none'}}
-                       onChange={onImageSelected}/>
+                <input
+                    type="file"
+                    accept=".png,.jpg,.webp,.jpeg"
+                    id="chat-image-file-select-upload"
+                    style={{display: "none"}}
+                    onChange={onImageSelected}
+                />
                 <UploadIcon/>
             </div>
-
         </div>
     );
 }
@@ -452,7 +457,7 @@ export function Chat() {
     const inputRef = useRef<HTMLTextAreaElement>(null);
     const [userInput, setUserInput] = useState("");
     const [useImages, setUseImages] = useState<any[]>([]);
-    const [mjImageMode, setMjImageMode] = useState<string>("BLEND");
+    const [mjImageMode, setMjImageMode] = useState<string>("IMAGINE");
     const [isLoading, setIsLoading] = useState(false);
     const {submitKey, shouldSubmit} = useSubmitHandler();
     const {scrollRef, setAutoScroll, scrollToBottom} = useScrollToBottom();
@@ -523,11 +528,10 @@ export function Chat() {
 
     const doSubmit = async (userInput: string) => {
         userInput = userInput.trim();
-        console.log(useImages, mjImageMode)
         if (useImages.length > 0) {
-            if (mjImageMode === 'IMAGINE' && userInput == "") {
-                alert("请输入垫图指令画面描述")
-                return
+            if (mjImageMode === "IMAGINE" && userInput == "") {
+                alert(Locale.Midjourney.NeedInputUseImgPrompt);
+                return;
             }
         } else {
             if (userInput == "") return;
@@ -535,8 +539,10 @@ export function Chat() {
         setIsLoading(true);
         try {
             const res: any = await chatStore.onUserInput(userInput, {
-                useImages, mjImageMode,setAutoScroll
-            })
+                useImages,
+                mjImageMode,
+                setAutoScroll,
+            });
             if (res !== false) {
                 localStorage.setItem(LAST_INPUT_KEY, userInput);
                 setUserInput("");
@@ -547,8 +553,8 @@ export function Chat() {
                 setAutoScroll(true);
             }
         } catch (e) {
-            console.error(e)
-        }finally {
+            console.error(e);
+        } finally {
             setIsLoading(false);
         }
     };
@@ -647,9 +653,11 @@ export function Chat() {
         setIsLoading(true);
         const content = session.messages[userIndex].content;
         deleteMessage(userIndex);
-        chatStore.onUserInput(content,{
-            setAutoScroll
-        }).then(() => setIsLoading(false));
+        chatStore
+            .onUserInput(content, {
+                setAutoScroll,
+            })
+            .then(() => setIsLoading(false));
         inputRef.current?.focus();
     };
 
@@ -725,6 +733,14 @@ export function Chat() {
             doSubmit(text);
         },
     });
+
+    console.log(messages)
+
+    messages?.forEach((msg) => {
+        if (msg.model === 'midjourney' && msg.attr.taskId) {
+            chatStore.fetchMidjourneyStatus(msg)
+        }
+    })
 
     return (
         <div className={styles.chat} key={session.id}>
@@ -814,7 +830,14 @@ export function Chat() {
                             <div
                                 key={i}
                                 className={
-                                    isUser ? styles["chat-message-user"] : [styles["chat-message"], message.model == "midjourney" ? styles["chat-model-mj"] : ""].join(" ")
+                                    isUser
+                                        ? styles["chat-message-user"]
+                                        : [
+                                            styles["chat-message"],
+                                            message.model == "midjourney"
+                                                ? styles["chat-model-mj"]
+                                                : "",
+                                        ].join(" ")
                                 }
                             >
                                 <div className={styles["chat-message-container"]}>
@@ -881,48 +904,95 @@ export function Chat() {
                                             defaultShow={i >= messages.length - 10}
                                         />
                                     </div>
-                                    {!isUser && message.model == 'midjourney' && message.attr?.finished && ["VARIATION", "IMAGINE"].includes(message.attr?.action) && (
-                                        <div
-                                            className={[styles["chat-message-actions"], styles["column-flex"]].join(" ")}>
-                                            <div>
-                                                <button
-                                                    onClick={() => doSubmit(`/mj UPSCALE::1::${message.attr.taskId}`)}
-                                                    className={`${styles["chat-message-action-btn"]} clickable`}>U1
-                                                </button>
-                                                <button
-                                                    onClick={() => doSubmit(`/mj UPSCALE::2::${message.attr.taskId}`)}
-                                                    className={`${styles["chat-message-action-btn"]} clickable`}>U2
-                                                </button>
-                                                <button
-                                                    onClick={() => doSubmit(`/mj UPSCALE::3::${message.attr.taskId}`)}
-                                                    className={`${styles["chat-message-action-btn"]} clickable`}>U3
-                                                </button>
-                                                <button
-                                                    onClick={() => doSubmit(`/mj UPSCALE::4::${message.attr.taskId}`)}
-                                                    className={`${styles["chat-message-action-btn"]} clickable`}>U4
-                                                </button>
-                                                {/*<button onClick={() => doSubmit(`/mj REROLL::0::${message.attr.taskId}`)} className={`${styles["chat-message-action-btn"]} clickable`}>RESET</button>*/}
+                                    {!isUser &&
+                                        message.model == "midjourney" &&
+                                        message.attr?.finished &&
+                                        ["VARIATION", "IMAGINE", "BLEND"].includes(message.attr?.action) && (
+                                            <div
+                                                className={[
+                                                    styles["chat-message-actions"],
+                                                    styles["column-flex"],
+                                                ].join(" ")}
+                                            >
+                                                <div>
+                                                    <button
+                                                        onClick={() =>
+                                                            doSubmit(`/mj UPSCALE::1::${message.attr.taskId}`)
+                                                        }
+                                                        className={`${styles["chat-message-action-btn"]} clickable`}
+                                                    >
+                                                        U1
+                                                    </button>
+                                                    <button
+                                                        onClick={() =>
+                                                            doSubmit(`/mj UPSCALE::2::${message.attr.taskId}`)
+                                                        }
+                                                        className={`${styles["chat-message-action-btn"]} clickable`}
+                                                    >
+                                                        U2
+                                                    </button>
+                                                    <button
+                                                        onClick={() =>
+                                                            doSubmit(`/mj UPSCALE::3::${message.attr.taskId}`)
+                                                        }
+                                                        className={`${styles["chat-message-action-btn"]} clickable`}
+                                                    >
+                                                        U3
+                                                    </button>
+                                                    <button
+                                                        onClick={() =>
+                                                            doSubmit(`/mj UPSCALE::4::${message.attr.taskId}`)
+                                                        }
+                                                        className={`${styles["chat-message-action-btn"]} clickable`}
+                                                    >
+                                                        U4
+                                                    </button>
+                                                    {/*<button onClick={() => doSubmit(`/mj REROLL::0::${message.attr.taskId}`)} className={`${styles["chat-message-action-btn"]} clickable`}>RESET</button>*/}
+                                                </div>
+                                                <div>
+                                                    <button
+                                                        onClick={() =>
+                                                            doSubmit(
+                                                                `/mj VARIATION::1::${message.attr.taskId}`,
+                                                            )
+                                                        }
+                                                        className={`${styles["chat-message-action-btn"]} clickable`}
+                                                    >
+                                                        V1
+                                                    </button>
+                                                    <button
+                                                        onClick={() =>
+                                                            doSubmit(
+                                                                `/mj VARIATION::2::${message.attr.taskId}`,
+                                                            )
+                                                        }
+                                                        className={`${styles["chat-message-action-btn"]} clickable`}
+                                                    >
+                                                        V2
+                                                    </button>
+                                                    <button
+                                                        onClick={() =>
+                                                            doSubmit(
+                                                                `/mj VARIATION::3::${message.attr.taskId}`,
+                                                            )
+                                                        }
+                                                        className={`${styles["chat-message-action-btn"]} clickable`}
+                                                    >
+                                                        V3
+                                                    </button>
+                                                    <button
+                                                        onClick={() =>
+                                                            doSubmit(
+                                                                `/mj VARIATION::4::${message.attr.taskId}`,
+                                                            )
+                                                        }
+                                                        className={`${styles["chat-message-action-btn"]} clickable`}
+                                                    >
+                                                        V4
+                                                    </button>
+                                                </div>
                                             </div>
-                                            <div>
-                                                <button
-                                                    onClick={() => doSubmit(`/mj VARIATION::1::${message.attr.taskId}`)}
-                                                    className={`${styles["chat-message-action-btn"]} clickable`}>V1
-                                                </button>
-                                                <button
-                                                    onClick={() => doSubmit(`/mj VARIATION::2::${message.attr.taskId}`)}
-                                                    className={`${styles["chat-message-action-btn"]} clickable`}>V2
-                                                </button>
-                                                <button
-                                                    onClick={() => doSubmit(`/mj VARIATION::3::${message.attr.taskId}`)}
-                                                    className={`${styles["chat-message-action-btn"]} clickable`}>V3
-                                                </button>
-                                                <button
-                                                    onClick={() => doSubmit(`/mj VARIATION::4::${message.attr.taskId}`)}
-                                                    className={`${styles["chat-message-action-btn"]} clickable`}>V4
-                                                </button>
-                                            </div>
-                                        </div>
-                                    )}
+                                        )}
                                     {!isUser && !message.preview && (
                                         <div className={styles["chat-message-actions"]}>
                                             <div className={styles["chat-message-action-date"]}>
@@ -957,37 +1027,48 @@ export function Chat() {
                         onSearch("");
                     }}
                     imageSelected={(img: any) => {
-                        if (useImages.length >= 2) {
-                            alert("最多选择两张图片")
-                            return
+                        if (useImages.length >= 5) {
+                            alert(Locale.Midjourney.SelectImgMax(5));
+                            return;
                         }
-                        setUseImages([...useImages, img])
+                        setUseImages([...useImages, img]);
                     }}
                 />
                 {useImages.length > 0 && (
-                    <div className={styles['chat-select-images']}>
+                    <div className={styles["chat-select-images"]}>
                         {useImages.map((img: any, i) => (
-                            <img src={img.base64} key={i} onClick={() => {
-                                setUseImages(useImages.filter((_, ii) => ii != i))
-                            }} title={img.filename} alt={img.filename}/>
+                            <img
+                                src={img.base64}
+                                key={i}
+                                onClick={() => {
+                                    setUseImages(useImages.filter((_, ii) => ii != i));
+                                }}
+                                title={img.filename}
+                                alt={img.filename}
+                            />
                         ))}
-                        <div style={{fontSize: '12px', marginBottom: '5px'}}>
-                            {
-                                [{name: '混图(blend)', value: 'BLEND'}, {
-                                    name: '识图(describe)',
-                                    value: 'DESCRIBE'
-                                }, {name: '垫图', value: 'IMAGINE'}].map((item, i) => (
-                                    <label key={i}><input type='radio' name='mj-img-mode'
-                                                          checked={mjImageMode == item.value} value={item.value}
-                                                          onChange={(e) => {
-                                                              setMjImageMode(e.target.value)
-                                                          }
-                                                          }/><span>{item.name}</span></label>
-                                ))
-                            }
+                        <div style={{fontSize: "12px", marginBottom: "5px"}}>
+                            {[
+                                {name: Locale.Midjourney.ModeImagineUseImg, value: "IMAGINE"},
+                                {name: Locale.Midjourney.ModeBlend, value: "BLEND"},
+                                {name: Locale.Midjourney.ModeDescribe, value: "DESCRIBE"},
+                            ].map((item, i) => (
+                                <label key={i}>
+                                    <input
+                                        type="radio"
+                                        name="mj-img-mode"
+                                        checked={mjImageMode == item.value}
+                                        value={item.value}
+                                        onChange={(e) => {
+                                            setMjImageMode(e.target.value);
+                                        }}
+                                    />
+                                    <span>{item.name}</span>
+                                </label>
+                            ))}
                         </div>
-                        <div style={{fontSize: '12px'}}>
-                            <small>提示：垫图模式/识图(describe)模式只会使用第一张图片，混图(blend)模式会按顺序使用选中的两张图片（点击图片可以移除）</small>
+                        <div style={{fontSize: "12px"}}>
+                            <small>{Locale.Midjourney.HasImgTip}</small>
                         </div>
                     </div>
                 )}
@@ -995,7 +1076,11 @@ export function Chat() {
           <textarea
               ref={inputRef}
               className={styles["chat-input"]}
-              placeholder={Locale.Chat.Input(submitKey)}
+              placeholder={
+                  useImages.length > 0 && mjImageMode != "IMAGINE"
+                      ? Locale.Midjourney.InputDisabled
+                      : Locale.Chat.Input(submitKey)
+              }
               onInput={(e) => onInput(e.currentTarget.value)}
               value={userInput}
               onKeyDown={onInputKeyDown}
@@ -1003,6 +1088,7 @@ export function Chat() {
               onBlur={() => setAutoScroll(false)}
               rows={inputRows}
               autoFocus={autoFocus}
+              disabled={useImages.length > 0 && mjImageMode != "IMAGINE"}
           />
                     <IconButton
                         icon={<SendWhiteIcon/>}
