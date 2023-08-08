@@ -35,8 +35,8 @@ export const DEFAULT_CONFIG = {
     max_tokens: 2000,
     presence_penalty: 0,
     sendMemory: true,
-    historyMessageCount: 4,
-    compressMessageLengthThreshold: 1000,
+    historyMessageCount: 8,
+    compressMessageLengthThreshold: 2000,
   },
 };
 
@@ -183,14 +183,14 @@ export const useAppConfig = create<ChatConfigStore>()(
     }),
     {
       name: StoreKey.Config,
-      version: 2,
+      version: 3,
       migrate(persistedState, version) {
         if (version === 2) return persistedState as any;
 
         const state = persistedState as ChatConfig;
         state.modelConfig.sendMemory = true;
-        state.modelConfig.historyMessageCount = 4;
-        state.modelConfig.compressMessageLengthThreshold = 1000;
+        state.modelConfig.historyMessageCount = 8;
+        state.modelConfig.compressMessageLengthThreshold = 2000;
         state.dontShowMaskSplashScreen = false;
 
         return state;
