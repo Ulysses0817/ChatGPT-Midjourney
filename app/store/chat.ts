@@ -401,7 +401,7 @@ export const useChatStore = create<ChatStore>()(
                 });
 
                 // make request
-                console.log("[User Input] ", sendMessages);
+                console.log("[User Input]-sendMessages: ", sendMessages);
                 if (
                     content.toLowerCase().startsWith("/mj") ||
                     content.toLowerCase().startsWith("/MJ")
@@ -501,6 +501,7 @@ export const useChatStore = create<ChatStore>()(
                                 botMessage.content =
                                     Locale.Midjourney.TaskErrNotSupportType(action);
                                 botMessage.streaming = false;
+                                botMessage.isError = true;
                                 return;
                             }
                             if (!res.ok) {
@@ -525,6 +526,7 @@ export const useChatStore = create<ChatStore>()(
                                     resJson?.description ||
                                     Locale.Midjourney.UnknownError,
                                 );
+                                botMessage.isError = true;
                             } else {
                                 const taskId: string = resJson.result;
                                 const prefixContent = Locale.Midjourney.TaskPrefix(
@@ -546,6 +548,7 @@ export const useChatStore = create<ChatStore>()(
                             botMessage.content = Locale.Midjourney.TaskSubmitErr(
                                 e?.error || e?.message || Locale.Midjourney.UnknownError,
                             );
+                            botMessage.isError = true;
                         } finally {
                             ChatControllerPool.remove(
                                 sessionIndex,
@@ -634,8 +637,12 @@ export const useChatStore = create<ChatStore>()(
                 const clearedContextMessages = session.messages.slice(
                     session.clearContextIndex ?? 0,
                 );
+                console.log("[session.clearContextIndex]:", session.clearContextIndex)
                 const messages = clearedContextMessages.filter((msg) => !msg.isError);
                 const n = messages.length;
+                console.log("[clearedContextMessages & messages length]:", clearedContextMessages.length, n)
+                const error_messages = clearedContextMessages.filter((msg) => msg.isError);
+                console.log("[filter error_messages]:", error_messages)
 
                 const context = session.mask.context.slice();
 
@@ -756,7 +763,7 @@ export const useChatStore = create<ChatStore>()(
                 const lastSummarizeIndex = session.messages.length;
 
                 console.log(
-                    "[Chat History] ",
+                    "[Chat History]-tobe summarized msgs ",
                     toBeSummarizedMsgs,
                     historyMsgLength,
                     modelConfig.compressMessageLengthThreshold,
@@ -777,11 +784,11 @@ export const useChatStore = create<ChatStore>()(
                             session.memoryPrompt = message;
                         },
                         onFinish(message) {
-                            console.log("[Memory] ", message);
+                            console.log("[Memory]-for summarize ", message);
                             session.lastSummarizeIndex = lastSummarizeIndex;
                         },
                         onError(err) {
-                            console.error("[Summarize] ", err);
+                            console.error("[Summarize]-Error ", err);
                         },
                     });
                 }
@@ -823,8 +830,8 @@ export const useChatStore = create<ChatStore>()(
                         newSession.topic = oldSession.topic;
                         newSession.messages = [...oldSession.messages];
                         newSession.mask.modelConfig.sendMemory = true;
-                        newSession.mask.modelConfig.historyMessageCount = 4;
-                        newSession.mask.modelConfig.compressMessageLengthThreshold = 1000;
+                        newSession.mask.modelConfig.historyMessageCount = 8;
+                        newSession.mask.modelConfig.compressMessageLengthThreshold = 3000;
                         newState.sessions.push(newSession);
                     }
                 }
