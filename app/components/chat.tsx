@@ -374,6 +374,7 @@ export function ChatActions(props: {
                 <div
                     className={`${chatStyle["chat-input-action"]} clickable`}
                     onClick={props.showPromptModal}
+                    title="进入设置页面"
                 >
                     <SettingsIcon/>
                 </div>
@@ -382,6 +383,7 @@ export function ChatActions(props: {
             <div
                 className={`${chatStyle["chat-input-action"]} clickable`}
                 onClick={nextTheme}
+                title="白天/夜晚模式转换"
             >
                 {theme === Theme.Auto ? (
                     <AutoIcon/>
@@ -395,6 +397,7 @@ export function ChatActions(props: {
             <div
                 className={`${chatStyle["chat-input-action"]} clickable`}
                 onClick={props.showPromptHints}
+                title="展示预置人设prompt列表"
             >
                 <PromptIcon/>
             </div>
@@ -404,6 +407,7 @@ export function ChatActions(props: {
                 onClick={() => {
                     navigate(Path.Masks);
                 }}
+                title="进入人设prompt页面"
             >
                 <MaskIcon/>
             </div>
@@ -420,6 +424,7 @@ export function ChatActions(props: {
                         }
                     });
                 }}
+                title="忽略历史对话（不可逆）"
             >
                 <BreakIcon/>
             </div>
@@ -427,6 +432,7 @@ export function ChatActions(props: {
             <div
                 className={`${chatStyle["chat-input-action"]} clickable`}
                 onClick={selectImage}
+                title="上传图片(绘图功能相关)"
             >
                 <input
                     type="file"
