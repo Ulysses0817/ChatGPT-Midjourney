@@ -46,8 +46,8 @@ export const DEFAULT_CONFIG = {
     presence_penalty: 0,
     frequency_penalty: 0,
     sendMemory: true,
-    historyMessageCount: 4,
-    compressMessageLengthThreshold: 1000,
+    historyMessageCount: 8,
+    compressMessageLengthThreshold: 3000,
     enableInjectSystemPrompts: true,
     template: DEFAULT_INPUT_TEMPLATE,
   },
@@ -151,6 +151,10 @@ export const useAppConfig = create<ChatConfigStore>()(
       version: 3.7,
       migrate(persistedState, version) {
         const state = persistedState as ChatConfig;
+        state.modelConfig.sendMemory = true;
+        state.modelConfig.historyMessageCount = 8;
+        state.modelConfig.compressMessageLengthThreshold = 3000;
+        state.dontShowMaskSplashScreen = false;
 
         if (version < 3.4) {
           state.modelConfig.sendMemory = true;

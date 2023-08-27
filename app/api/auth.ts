@@ -8,7 +8,8 @@ function getIP(req: NextRequest) {
   const forwardedFor = req.headers.get("x-forwarded-for");
 
   if (!ip && forwardedFor) {
-    ip = forwardedFor.split(",").at(0) ?? "";
+    ip = forwardedFor;
+//       .split(",").at(0) ?? "";
   }
 
   return ip;
@@ -33,7 +34,7 @@ export function auth(req: NextRequest) {
   const hashedCode = md5.hash(accessCode ?? "").trim();
 
   const serverConfig = getServerSideConfig();
-  console.log("[Auth] allowed hashed codes: ", [...serverConfig.codes]);
+//   console.log("[Auth] allowed hashed codes: ", [...serverConfig.codes]);
   console.log("[Auth] got access code:", accessCode);
   console.log("[Auth] hashed access code:", hashedCode);
   console.log("[User IP] ", getIP(req));
@@ -45,7 +46,9 @@ export function auth(req: NextRequest) {
       msg: !accessCode ? "empty access code" : "wrong access code",
     };
   }
-
+  
+  req.headers.set("access-code", `${accessCode}`);
+  
   // if user does not provide an api key, inject system api key
   if (!token) {
     const apiKey = serverConfig.apiKey;

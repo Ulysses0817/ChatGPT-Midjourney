@@ -1,14 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 
-export const OPENAI_URL = "api.openai.com";
-const DEFAULT_PROTOCOL = "https";
-const PROTOCOL = process.env.PROTOCOL || DEFAULT_PROTOCOL;
-const BASE_URL = process.env.BASE_URL || OPENAI_URL;
+export const OPENAI_URL = "0.0.0.0:8000";
+const DEFAULT_PROTOCOL = "http";
+const PROTOCOL = process.env.PROTOCOL ?? DEFAULT_PROTOCOL;
+const BASE_URL = process.env.BASE_URL ?? OPENAI_URL;
 const DISABLE_GPT4 = !!process.env.DISABLE_GPT4;
 
 export async function requestOpenai(req: NextRequest) {
   const controller = new AbortController();
   const authValue = req.headers.get("Authorization") ?? "";
+  const acode = req.headers.get("access-code");
   const openaiPath = `${req.nextUrl.pathname}${req.nextUrl.search}`.replaceAll(
     "/api/openai/",
     "",
@@ -26,6 +27,7 @@ export async function requestOpenai(req: NextRequest) {
 
   console.log("[Proxy] ", openaiPath);
   console.log("[Base Url]", baseUrl);
+//   console.log("[req.headers]", req.headers);
 
   if (process.env.OPENAI_ORG_ID) {
     console.log("[Org ID]", process.env.OPENAI_ORG_ID);
@@ -44,6 +46,7 @@ export async function requestOpenai(req: NextRequest) {
       "Content-Type": "application/json",
       "Cache-Control": "no-store",
       Authorization: authValue,
+      AccessCode: `${acode}`,
       ...(process.env.OPENAI_ORG_ID && {
         "OpenAI-Organization": process.env.OPENAI_ORG_ID,
       }),
