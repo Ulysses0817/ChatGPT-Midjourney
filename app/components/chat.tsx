@@ -1049,7 +1049,7 @@ function _Chat() {
     tight: (text) => {
       console.log("[Command] got tight from url: ", text);
       config.update(
-        (config) => (config.tightBorder = !!text),
+        (config) => (config.tightBorder = text == 'true'),
       );
     },
     settings: (text) => {
