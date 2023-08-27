@@ -137,10 +137,10 @@ export function SideBar(props: { className?: string }) {
           shadow
         />
         <IconButton
-          icon={<GemIcon />}
-          text={shouldNarrow ? undefined : "Pro"}
+          icon={<PluginIcon />}
+          text={shouldNarrow ? undefined : Locale.Plugin.Name}
           className={styles["sidebar-bar-button"]}
-          onClick={() => window.open(REPO_URL + "-Pro", "_blank")}
+          onClick={() => showToast(Locale.WIP)}
           shadow
         />
       </div>

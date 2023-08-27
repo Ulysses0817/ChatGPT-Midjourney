@@ -158,8 +158,8 @@ export const useAppConfig = create<ChatConfigStore>()(
 
         if (version < 3.4) {
           state.modelConfig.sendMemory = true;
-          state.modelConfig.historyMessageCount = 4;
-          state.modelConfig.compressMessageLengthThreshold = 1000;
+          state.modelConfig.historyMessageCount = 8;
+          state.modelConfig.compressMessageLengthThreshold = 3000;
           state.modelConfig.frequency_penalty = 0;
           state.modelConfig.top_p = 1;
           state.modelConfig.template = DEFAULT_INPUT_TEMPLATE;
