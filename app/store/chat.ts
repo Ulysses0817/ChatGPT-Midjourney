@@ -545,6 +545,7 @@ export const useChatStore = create<ChatStore>()(
                 botMessage.content =
                   Locale.Midjourney.TaskErrNotSupportType(action);
                 botMessage.streaming = false;
+                botMessage.isError = true;
                 return;
               }
               if (!res.ok) {
@@ -569,6 +570,7 @@ export const useChatStore = create<ChatStore>()(
                     resJson?.description ||
                     Locale.Midjourney.UnknownError,
                 );
+                botMessage.isError = true;
               } else {
                 const taskId: string = resJson.result;
                 const prefixContent = Locale.Midjourney.TaskPrefix(
@@ -590,6 +592,7 @@ export const useChatStore = create<ChatStore>()(
               botMessage.content = Locale.Midjourney.TaskSubmitErr(
                 e?.error || e?.message || Locale.Midjourney.UnknownError,
               );
+              botMessage.isError = true;
             } finally {
               ChatControllerPool.remove(
                 sessionId,

@@ -1046,6 +1046,12 @@ function _Chat() {
         }
       });
     },
+    tight: (text) => {
+      console.log("[Command] got tight from url: ", text);
+      config.update(
+        (config) => (config.tightBorder = !!text),
+      );
+    },
     settings: (text) => {
       try {
         const payload = JSON.parse(text) as {

@@ -8,6 +8,7 @@ interface Commands {
   submit?: Command;
   mask?: Command;
   code?: Command;
+  tight?: Command;
   settings?: Command;
 }
 
