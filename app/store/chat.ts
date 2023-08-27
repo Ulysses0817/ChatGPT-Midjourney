@@ -894,6 +894,9 @@ export const useChatStore = create<ChatStore>()(
         const state = persistedState as any;
         const newState = JSON.parse(JSON.stringify(state)) as ChatStore;
 
+        newSession.mask.modelConfig.historyMessageCount = 8;
+        newSession.mask.modelConfig.compressMessageLengthThreshold = 3000;
+
         if (version < 2) {
           newState.sessions = [];
 

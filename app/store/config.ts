@@ -168,15 +168,23 @@ export const useAppConfig = create<ChatConfigStore>()(
         }
 
         if (version < 3.5) {
-          state.customModels = "claude,claude-100k";
+          state.modelConfig.sendMemory = true;
+          state.modelConfig.historyMessageCount = 8;
+          state.modelConfig.compressMessageLengthThreshold = 3000;
         }
 
         if (version < 3.6) {
           state.modelConfig.enableInjectSystemPrompts = true;
+          state.modelConfig.sendMemory = true;
+          state.modelConfig.historyMessageCount = 8;
+          state.modelConfig.compressMessageLengthThreshold = 3000;
         }
 
         if (version < 3.7) {
           state.enableAutoGenerateTitle = true;
+          state.modelConfig.sendMemory = true;
+          state.modelConfig.historyMessageCount = 8;
+          state.modelConfig.compressMessageLengthThreshold = 3000;
         }
 
         return state as any;
