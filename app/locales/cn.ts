@@ -7,8 +7,8 @@ const cn = {
   WIP: "该功能仍在开发中……",
   Error: {
     Unauthorized: isApp
-      ? "检测到无效 API Key，请前往[设置](/#/settings)页检查 API Key 是否配置正确。"
-      : "访问密码不正确或为空，请前往[登录](/#/auth)页输入正确的访问密码，或者在[设置](/#/settings)页填入你自己的 OpenAI API Key。",
+      ? "检测到无效 API Key，请前往[设置](/#/settings)页检查 API Key 是否配置正确。如果没有访问码或API KEY，请前往[注册登录](https://api.zheyuai.com/login)领取新人免费额度"
+      : "访问密码不正确或为空，请前往[登录](/#/auth)页输入正确的访问密码，或者在[设置](/#/settings)页填入你自己的 OpenAI API Key。[点击这里跳转使用说明](https://api.zheyuai.com/about)。如果没有访问码或API KEY，请前往[注册登录](https://api.zheyuai.com/login)领取新人免费额度！",
   },
   Auth: {
     Title: "需要密码",
@@ -304,7 +304,7 @@ const cn = {
   },
   Store: {
     DefaultTopic: "新的聊天",
-    BotHello: "有什么可以帮你的吗([点击这里跳转使用说明](https://shimo.im/docs/TeuNIF5HWrMKLbci/))",
+    BotHello: "有什么可以帮你的吗([点击这里跳转使用说明](https://api.zheyuai.com/about))",
     Error: "出错了，稍后重试吧",
     Prompt: {
       History: (content: string) => "这是历史聊天总结作为前情提要：" + content,
