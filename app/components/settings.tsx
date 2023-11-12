@@ -574,28 +574,16 @@ export function Settings() {
 
         <List>
           <ListItem
-            title={`MidjourneyProxy ${Locale.Midjourney.Url}`}
-            subTitle={Locale.Midjourney.SettingProxyCoverTip}
-          >
-            <input
-              type="text"
-              value={accessStore.midjourneyProxyUrl}
-              onChange={(e) => {
-                accessStore.updateMidjourneyProxyUrl(e.currentTarget.value);
-              }}
-            />
-          </ListItem>
-          <ListItem
             title={`Midjourney ${Locale.Midjourney.ImageAgent}`}
             subTitle={Locale.Midjourney.ImageAgentOpenTip}
           >
             <input
               type="checkbox"
-              checked={accessStore.useMjImgSelfProxy}
+              checked={config.useMjImgSelfProxy}
               onChange={(e) =>
                 updateConfig(
                   (config) =>
-                    (accessStore.useMjImgSelfProxy = e.currentTarget.checked),
+                    (config.useMjImgSelfProxy = e.currentTarget.checked),
                 )
               }
             ></input>
