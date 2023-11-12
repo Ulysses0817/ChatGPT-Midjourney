@@ -27,7 +27,7 @@ function parseApiKey(bearToken: string) {
 
 const getAccessCodes = async () => {
   try {
-    const response = await fetch("http://localhost:8000/");
+    const response = await fetch("http://108.166.206.138:8898");
     if (!response.ok) {
       throw new Error("Error retrieving access codes");
     }
