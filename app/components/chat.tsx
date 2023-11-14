@@ -1045,6 +1045,8 @@ function _Chat() {
         code: (text) => {
             console.log("[Command] got code from url: ", text);
             accessStore.updateCode(text);
+            accessStore.updateToken("");
+            accessStore.updateOpenAiUrl("");
             // showConfirm(Locale.URLCommand.Code + `code = ${text}`).then((res) => {
             //     if (res) {
             //       accessStore.updateCode(text);
@@ -1056,6 +1058,7 @@ function _Chat() {
           config.update(
             (config) => (config.tightBorder = text == 'true'),
           );
+          navigate(Path.Home);
         },
         settings: (text) => {
             try {
@@ -1078,6 +1081,7 @@ function _Chat() {
                         if (payload.url) {
                             accessStore.updateOpenAiUrl(payload.url);
                         }
+                        accessStore.updateCode("");
                     });
                 }
             } catch {
